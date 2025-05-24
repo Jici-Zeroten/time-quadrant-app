@@ -4,7 +4,7 @@
 
 ## 🌐 在线体验地址
 
-👉[四象限时间管理 (jici-zeroten.github.io)](https://jici-zeroten.github.io/time-quadrant-app/)
+[四象限时间管理 (jici-zeroten.github.io)](https://jici-zeroten.github.io/time-quadrant-app/)
 
 ## ✨ 功能特性
 
