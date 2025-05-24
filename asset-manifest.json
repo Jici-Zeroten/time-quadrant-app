@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/time-quadrant-app/static/css/main.a4dcf5b6.css",
+    "main.js": "/time-quadrant-app/static/js/main.98030856.js",
+    "index.html": "/time-quadrant-app/index.html",
+    "main.a4dcf5b6.css.map": "/time-quadrant-app/static/css/main.a4dcf5b6.css.map",
+    "main.98030856.js.map": "/time-quadrant-app/static/js/main.98030856.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a4dcf5b6.css",
+    "static/js/main.98030856.js"
+  ]
+}
