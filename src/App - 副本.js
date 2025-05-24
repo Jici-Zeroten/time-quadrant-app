@@ -31,8 +31,7 @@ const Quadrant = ({ title, tasks, onDrop, children, color, showCompleted, onTogg
     collect: (monitor) => ({ isOver: monitor.isOver() }),
   });
 
-  const completedCount = (tasks || []).filter(t => t && t.completed).length;
-
+  const completedCount = tasks.filter((t) => t.completed).length;
   const allCompleted = tasks.length > 0 && completedCount === tasks.length;
 
   useEffect(() => {
@@ -68,31 +67,32 @@ const Quadrant = ({ title, tasks, onDrop, children, color, showCompleted, onTogg
   return (
     <div
       ref={drop}
-      className={`rounded-2xl shadow-xl p-4 ${color} flex-1 transition-all duration-200 ${isOver ? "ring-2 ring-orange-500" : ""}`}
+      className={`rounded-2xl shadow-xl p-4 ${color} flex-1 transition-all duration-200 ${isOver ? "ring-2 ring-orange-500" : ""
+        }`}
     >
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-xl font-bold">
-          {title} ({(tasks || []).filter((t) => t?.completed).length}/{tasks?.length || 0})
-        </h2>
-        <div className="flex items-center gap-2">
-          <motion.button
-            onClick={onToggleShowCompleted}
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ backgroundColor: "#dbeafe" }} // hover 蓝色
-            transition={{ duration: 0.2 }}
-            className={`text-sm font-medium text-blue-600 hover:text-blue-800 px-2 py-1 rounded-md transition-colors`}
-          >
-            {showCompleted ? "隐藏完成" : "显示完成"}
-          </motion.button>
-          <button
-            onClick={() => setCollapsed((prev) => !prev)}
-            className="text-gray-600 hover:text-black transition"
-            title={collapsed ? "展开" : "收起"}
-          >
-            {collapsed ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
-          </button>
-        </div>
+    <div className="flex justify-between items-center mb-2">
+      <h2 className="text-xl font-bold">
+        {title} ({tasks.filter((t) => t.completed).length}/{tasks.length})
+      </h2>
+      <div className="flex items-center gap-2">
+        <motion.button
+          onClick={onToggleShowCompleted}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ backgroundColor: "#dbeafe" }} // hover 蓝色
+          transition={{ duration: 0.2 }}
+          className={`text-sm font-medium text-blue-600 hover:text-blue-800 px-2 py-1 rounded-md transition-colors`}
+        >
+          {showCompleted ? "隐藏完成" : "显示完成"}
+        </motion.button>
+        <button
+          onClick={() => setCollapsed((prev) => !prev)}
+          className="text-gray-600 hover:text-black transition"
+          title={collapsed ? "展开" : "收起"}
+        >
+          {collapsed ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+        </button>
       </div>
+    </div>
 
       <AnimatePresence initial={false}>
         {!collapsed && (
@@ -154,21 +154,13 @@ const Task = ({
     <motion.div
       ref={ref}
       layout
-      initial={{ opacity: 0, scale: 0.95, y: -8 }}
-      animate={{
-        opacity: isDragging ? 0.6 : 1,
-        scale: isDragging ? 1.05 : 1,
-        y: 0,
-        boxShadow: isDragging
-          ? "0px 10px 30px rgba(0,0,0,0.15)"
-          : "0px 2px 8px rgba(0,0,0,0.05)",
-      }}
-      // exit={{ opacity: 0, scale: 0.9, y: 10 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      className={`p-2 rounded-xl bg-white flex justify-between items-center cursor-move ${isDragging ? "ring-2 ring-blue-400" : ""
+      initial={{ opacity: 0, scale: 0.9, y: -10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+      transition={{ duration: 0.25, type: "spring", stiffness: 300 }}
+      className={`p-2 rounded-xl shadow-md bg-white cursor-move flex justify-between items-center ${isDragging ? "opacity-50" : ""
         }`}
     >
-
       <div className="flex items-center gap-2 flex-1">
         <button onClick={() => onToggle(id)} className="text-green-600">
           {completed ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
@@ -236,7 +228,7 @@ export default function App() {
       localStorage.setItem("tasks", JSON.stringify(tasks));
     }
   }, [tasks, hasInitialized]);
-
+  
   useEffect(() => {
     try {
       localStorage.setItem(SHOW_COMPLETED_KEY, JSON.stringify(showCompleted));
@@ -244,7 +236,7 @@ export default function App() {
       console.error("保存显示偏好失败：", e);
     }
   }, [showCompleted]);
-
+  
   const addTask = () => {
     if (!taskInput.trim()) return;
     const id = Date.now().toString();
@@ -260,7 +252,6 @@ export default function App() {
     const updated = { ...tasks };
     for (const cat in updated) {
       updated[cat] = updated[cat].filter((task) => {
-        if (!task) return;
         if (task.id === taskId) {
           movedTask = task;
           return false;
@@ -268,12 +259,7 @@ export default function App() {
         return true;
       });
     }
-    if (movedTask) {
-      updated[toCategory].push(movedTask);
-      setTasks(updated);
-    } else {
-      console.warn("⚠️ 找不到任务 ID：", taskId);
-    }
+    if (movedTask) updated[toCategory].push(movedTask);
     setTasks(updated);
   };
 
@@ -318,10 +304,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    const now = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-    link.download = `tasks-${timestamp}.json`;
+    link.download = `tasks-${new Date().toISOString().split("T")[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
     confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
@@ -366,31 +349,31 @@ export default function App() {
 
   const generateReport = () => {
     const today = new Date().toLocaleDateString();
-
+  
     let total = 0, completed = 0;
     let quadrantSummary = [];
-
+  
     const names = {
       IN: "重要而不紧急",
       IU: "重要而紧急",
       UN: "不重要而不紧急",
       UU: "不重要而紧急",
     };
-
+  
     for (const key in tasks) {
       const list = tasks[key];
       const comp = list.filter((t) => t.completed).length;
-
+  
       total += list.length;
       completed += comp;
-
+  
       quadrantSummary.push(
         `${names[key]} ${list.length} 项，完成 ${comp} 项`
       );
     }
-
+  
     const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : "0.0";
-
+  
     const summary = `
 🗓️ 当前日期：${today}
 📌 共 ${total} 项任务：
@@ -399,23 +382,20 @@ ${quadrantSummary.join("\n")}
 🏁 完成率：${rate}%
 💡 很棒！继续保持专注和高效！
 `;
-
+  
     setReportText(summary.trim());
     setReportVisible(true);
   };
-
+  
   const createSortableTasks = (catKey, showCompleted = true) => {
 
     const taskList = tasks[catKey] || [];
-
+  
     // 1. 排序：未完成在前，已完成在后
     const sortedTaskList = [...taskList]
-      .filter((task) => showCompleted || !task.completed)
-      .sort((a, b) => {
-        if (!a || !b) return 0;
-        return a.completed === b.completed ? 0 : a.completed ? 1 : -1;
-      });
-
+    .filter((task) => showCompleted || !task.completed)
+    .sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
+  
     // 2. 拖拽排序（仅在同类任务内调整位置）
     const moveTask = (from, to) => {
       setTasks((prev) =>
@@ -429,10 +409,10 @@ ${quadrantSummary.join("\n")}
         })
       );
     };
-
+  
     return (
       <AnimatePresence>
-        {sortedTaskList.filter(Boolean).map((task, index) => (
+        {sortedTaskList.map((task, index) => (
           <Task
             key={task.id}
             {...task}
@@ -449,7 +429,7 @@ ${quadrantSummary.join("\n")}
       </AnimatePresence>
     );
   };
-
+  
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -511,10 +491,7 @@ ${quadrantSummary.join("\n")}
               key={key}
               title={label}
               tasks={tasks[key]}
-              onDrop={(id) => {
-                console.log(`🔁 拖拽任务 ${id} 到 ${key}`);
-                moveTaskToCategory(id, key);
-              }}
+              onDrop={(id) => moveTaskToCategory(id, key)}
               color={colors[key]}
               showCompleted={showCompleted[key]}
               onToggleShowCompleted={() =>
@@ -552,7 +529,7 @@ ${quadrantSummary.join("\n")}
           </motion.div>
         )}
       </AnimatePresence> */}
-
+      
       <AnimatePresence>
         {reportVisible && (
           <motion.div
