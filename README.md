@@ -1,70 +1,32 @@
-# Getting Started with Create React App
+# 🧭 Time Quadrant App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+一个基于「四象限图」的任务管理应用，支持拖拽排序、任务完成动画、数据导入导出、隐藏已完成任务等功能，帮助你高效管理日常任务。
 
-## Available Scripts
+## 🌐 在线体验地址
 
-In the project directory, you can run:
+👉[四象限时间管理 (jici-zeroten.github.io)](https://jici-zeroten.github.io/time-quadrant-app/)
 
-### `npm start`
+## ✨ 功能特性
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- ✅ **四象限任务管理**：基于艾森豪威尔矩阵和史蒂芬·科维的四象限工作法，将任务划分为「重要且紧急」「重要不紧急」「不重要但紧急」「不重要不紧急」
+- 🖱 **拖拽排序与移动**：支持任务在象限之间自由拖拽
+- 🎯 **任务完成状态切换**：点击切换任务完成状态，支持隐藏/显示已完成任务
+- 📦 **任务导入导出**：支持 JSON 格式一键导出/导入任务数据
+- 💫 **流畅动效体验**：使用 Framer Motion 实现添加、删除、移动、收缩时的过渡动画
+- 💾 **本地持久化存储**：所有任务数据将自动保存至浏览器 LocalStorage，无需手动保存
+- 📱 **响应式设计**：适配手机和平板，体验流畅
+- 🎉 **鼓励与奖励动画**： 当一个象限任务全部完成时，将触发激励动画，增强成就感
+- 📊 **生成任务报告**：生成当前任务报告，展示各象限任务数量与完成情况
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠 技术栈
 
-### `npm test`
+- React
+- Tailwind CSS
+- Framer Motion
+- React DnD
+- ShadCN UI + Lucide图标
+- canvas-confetti
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 碎碎念
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+仅仅是觉得每次本地部署启动麻烦而发布到GitHub Pages上方便日常使用。
