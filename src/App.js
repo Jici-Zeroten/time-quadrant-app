@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "./components/ui/card.js";
 import { Button } from "./components/ui/button.js";
 import { Input } from "./components/ui/input.js";
-import { PlusCircle, CheckCircle, Circle, Trash2, Edit3, Save, ChevronDown, ChevronRight } from "lucide-react";
+import { PlusCircle, CheckCircle, Circle, Trash2, Edit3, Save, ChevronDown, ChevronRight, CircleDashed } from "lucide-react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import update from "immutability-helper";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import TaskReportPage from "./TaskReportPage.jsx";
 
 const ITEM_TYPE = "TASK";
 
@@ -198,12 +199,15 @@ const Task = ({
 };
 
 export default function App() {
+  const [showReport, setShowReport] = useState(false);
+  const [reportTasks, setReportTasks] = useState({});
   const [taskInput, setTaskInput] = useState("");
   const [tasks, setTasks] = useState({ IU: [], IN: [], UU: [], UN: [] });
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [reportVisible, setReportVisible] = useState(false);
   const [reportText, setReportText] = useState("");
+  const [clearMode, setClearMode] = useState('all'); // 'all' | 'completed'
   const SHOW_COMPLETED_KEY = "showCompletedPrefs";
   const [showCompleted, setShowCompleted] = useState(() => {
     try {
@@ -352,15 +356,37 @@ export default function App() {
   };
 
   const handleClearAll = () => {
-    const confirmed = window.confirm("⚠️ 是否确认清空所有任务？该操作不可恢复！");
+    const actionName = clearMode === 'all' ? "清空所有任务" : "清空已完成任务";
+    const confirmed = window.confirm(
+      `⚠️ 是否确认${actionName}？该操作不可恢复！`
+    );
+    
     if (confirmed) {
-      setTasks({ IU: [], IN: [], UU: [], UN: [] });
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.5 },
-        colors: ['#333333', '#ff6666', '#cccccc'],
-      });
+      const newTasks = {};
+      
+      if (clearMode === 'all') {
+        // 原有清空逻辑
+        Object.keys(tasks).forEach(key => newTasks[key] = []);
+      } else {
+        // 新逻辑：仅清空已完成
+        Object.keys(tasks).forEach(key => {
+          newTasks[key] = tasks[key].filter(task => !task.completed);
+        });
+      }
+  
+      setTasks(newTasks);
+      
+      // 不同模式的庆祝效果
+      setTimeout(() => {
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.5 },
+          colors: clearMode === 'all' 
+            ? ['#333333', '#ff6666', '#cccccc'] 
+            : ['#4CAF50', '#81C784', '#A5D6A7'],
+        });
+      }, 100); 
     }
   };
 
@@ -452,157 +478,188 @@ ${quadrantSummary.join("\n")}
 
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-orange-50 p-4 md:p-6">
-        <div className="max-w-6xl w-full mx-auto mb-4 md:mb-6">
-          <div className="flex flex-col sm:flex-row gap-2 items-center justify-center w-full">
-            <Input
-              className="flex-grow min-w-0 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="输入任务内容"
-              value={taskInput}
-              onChange={(e) => setTaskInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <Button
-              className="flex-shrink-0 w-full sm:w-auto flex items-center justify-center px-5 py-2 min-w-[120px]"
-              onClick={addTask}
-            >
-              <PlusCircle className="mr-2 h-5 w-5" />
-              新增任务
-            </Button>
-          </div>
-
-          {/* 导出导入按钮 */}
-          <div className="flex flex-col sm:flex-row gap-2 items-center justify-center mt-3">
-            <Button
-              className="w-full sm:w-auto flex items-center justify-center px-4 py-2"
-              onClick={handleExport}
-            >
-              📤 导出任务列表
-            </Button>
-            <label className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition">
-              📥 导入任务列表
-              <input type="file" accept=".json" onChange={handleImport} className="hidden" />
-            </label>
-            <Button
-              variant="destructive"
-              className="w-full sm:w-auto flex items-center justify-center px-4 py-2"
-              onClick={handleClearAll}
-            >
-              🗑️ 清空任务列表
-            </Button>
-            <Button
-              className="w-full sm:w-auto flex items-center justify-center px-4 py-2"
-              onClick={() => generateReport()}
-            >
-              📊 生成任务报告
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto">
-          {[
-            ["IN", "重要而不紧急"],
-            ["IU", "重要而紧急"],
-            ["UN", "不重要而不紧急"],
-            ["UU", "不重要而紧急"],
-          ].map(([key, label]) => (
-            <Quadrant
-              key={key}
-              title={label}
-              tasks={tasks[key]}
-              onDrop={(id) => {
-                console.log(`🔁 拖拽任务 ${id} 到 ${key}`);
-                moveTaskToCategory(id, key);
-              }}
-              color={colors[key]}
-              showCompleted={showCompleted[key]}
-              onToggleShowCompleted={() =>
-                setShowCompleted((prev) => ({
-                  ...prev,
-                  [key]: !prev[key],
-                }))
-              }
-            >
-              {createSortableTasks(key, showCompleted[key])}
-            </Quadrant>
-          ))}
-        </div>
-      </div>
-
-      {/* <AnimatePresence>
-        {reportVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center p-4"
-          >
-            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative">
-              <h2 className="text-xl font-bold mb-4 text-center">📊 任务报告</h2>
-              <pre className="whitespace-pre-wrap text-gray-800">{reportText}</pre>
-              <Button
-                onClick={() => setReportVisible(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-black"
-              >
-                ✖
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence> */}
-
-      <AnimatePresence>
-        {reportVisible && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ y: -30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -30, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-gradient-to-br from-white via-orange-50 to-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative border border-orange-200"
-            >
-              <h2 className="text-2xl font-extrabold mb-4 text-center text-orange-600 flex items-center justify-center gap-2">
-                📊 任务报告
-              </h2>
-
-              <div className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap space-y-3">
-                {reportText.split("\n").map((line, i) => (
-                  <p key={i} className="pl-2 relative">
-                    <span className="absolute left-0 text-orange-400">•</span> {line}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-6 text-center">
+    <>
+      {showReport ? (
+        <TaskReportPage
+          tasks={reportTasks}
+          onBack={() => setShowReport(false)}
+        />
+      ) : (
+        <DndProvider backend={HTML5Backend}>
+          <div className="min-h-screen bg-orange-50 p-4 md:p-6">
+            <div className="max-w-6xl w-full mx-auto mb-4 md:mb-6">
+              <div className="flex flex-col sm:flex-row gap-2 items-center justify-center w-full">
+                <Input
+                  className="flex-grow min-w-0 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="输入任务内容"
+                  value={taskInput}
+                  onChange={(e) => setTaskInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
                 <Button
-                  onClick={() => setReportVisible(false)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg shadow"
+                  className="flex-shrink-0 w-full sm:w-auto flex items-center justify-center px-5 py-2 min-w-[120px]"
+                  onClick={addTask}
                 >
-                  关闭报告
+                  <PlusCircle className="mr-2 h-5 w-5" />
+                  新增任务
                 </Button>
               </div>
 
-              {/* 关闭按钮（右上角） */}
-              <button
-                onClick={() => setReportVisible(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                title="关闭"
-              >
-                ❌
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* 导出导入按钮 */}
+              <div className="flex flex-col sm:flex-row gap-2 items-center justify-center mt-3">
+                <Button
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-2"
+                  onClick={handleExport}
+                >
+                  📤 导出任务列表
+                </Button>
 
-    </DndProvider>
+                <label className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition">
+                  📥 导入任务列表
+                  <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+                </label>
+
+                <div className="relative group w-full sm:w-auto flex">
+                  <Button
+                    variant="destructive"
+                    className="w-full flex items-center justify-center px-4 py-2 pr-10 whitespace-normal break-words"
+                    onClick={handleClearAll}
+                  >
+                    <span className="flex items-center gap-1.5 text-center">
+                      🗑️ {clearMode === 'all' ? "清空所有任务" : "清空完成任务"}
+                    </span>
+                  </Button>
+
+                  <button
+                    onClick={() => setClearMode(prev => prev === 'all' ? 'completed' : 'all')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-red-200/30 rounded-full transition-colors"
+                    title="切换清空模式"
+                  >
+                    {clearMode === 'all' ? (
+                      <CircleDashed className="w-4 h-4 text-red-100" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 text-green-100" />
+                    )}
+                  </button>
+                </div>
+
+                <Button
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-2"
+                  onClick={() => {
+                    setReportTasks(tasks);  // 将当前任务传入报告页面
+                    setShowReport(true);    // 显示报告页面
+                  }}
+                >
+                  📊 生成任务报告
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-6xl mx-auto">
+              {[
+                ["IN", "重要而不紧急"],
+                ["IU", "重要而紧急"],
+                ["UN", "不重要而不紧急"],
+                ["UU", "不重要而紧急"],
+              ].map(([key, label]) => (
+                <Quadrant
+                  key={key}
+                  title={label}
+                  tasks={tasks[key]}
+                  onDrop={(id) => {
+                    console.log(`🔁 拖拽任务 ${id} 到 ${key}`);
+                    moveTaskToCategory(id, key);
+                  }}
+                  color={colors[key]}
+                  showCompleted={showCompleted[key]}
+                  onToggleShowCompleted={() =>
+                    setShowCompleted((prev) => ({
+                      ...prev,
+                      [key]: !prev[key],
+                    }))
+                  }
+                >
+                  {createSortableTasks(key, showCompleted[key])}
+                </Quadrant>
+              ))}
+            </div>
+          </div>
+
+          {/* <AnimatePresence>
+            {reportVisible && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="fixed inset-0 bg-black bg-opacity-30 z-50 flex items-center justify-center p-4"
+              >
+                <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative">
+                  <h2 className="text-xl font-bold mb-4 text-center">📊 任务报告</h2>
+                  <pre className="whitespace-pre-wrap text-gray-800">{reportText}</pre>
+                  <Button
+                    onClick={() => setReportVisible(false)}
+                    className="absolute top-2 right-2 text-gray-500 hover:text-black"
+                  >
+                    ✖
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence> */}
+
+          <AnimatePresence>
+            {reportVisible && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              >
+                <motion.div
+                  initial={{ y: -30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -30, opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-gradient-to-br from-white via-orange-50 to-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative border border-orange-200"
+                >
+                  <h2 className="text-2xl font-extrabold mb-4 text-center text-orange-600 flex items-center justify-center gap-2">
+                    📊 任务报告
+                  </h2>
+
+                  <div className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap space-y-3">
+                    {reportText.split("\n").map((line, i) => (
+                      <p key={i} className="pl-2 relative">
+                        <span className="absolute left-0 text-orange-400">•</span> {line}
+                      </p>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 text-center">
+                    <Button
+                      onClick={() => setReportVisible(false)}
+                      className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg shadow"
+                    >
+                      关闭报告
+                    </Button>
+                  </div>
+
+                  {/* 关闭按钮（右上角） */}
+                  <button
+                    onClick={() => setReportVisible(false)}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    title="关闭"
+                  >
+                    ❌
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+        </DndProvider>
+      )}
+    </>
   );
 }
