@@ -226,7 +226,7 @@ export default function TaskReportPage({ tasks, onBack }) {
                 <div className="grid grid-cols-2 gap-10">
                     {/* 饼图 */}
                     <div className="bg-white/80 p-6 rounded-3xl shadow-xl">
-                        <h4 className="text-2xl font-semibold mb-6 text-center">已完成任务分布 (饼图)</h4>
+                        <h4 className="text-2xl font-semibold mb-6 text-center">已完成任务分布</h4>
                         <ResponsiveContainer width="100%" height={280}>
                             <PieChart>
                                 <Pie
@@ -251,7 +251,7 @@ export default function TaskReportPage({ tasks, onBack }) {
 
                     {/* 雷达图 */}
                     <div className="bg-white/80 p-6 rounded-3xl shadow-xl">
-                        <h4 className="text-2xl font-semibold mb-6 text-center">各象限任务完成情况 (雷达图)</h4>
+                        <h4 className="text-2xl font-semibold mb-6 text-center">各象限任务完成情况</h4>
                         <ResponsiveContainer width="100%" height={280}>
                             <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="80%">
                                 <PolarGrid />
