@@ -1,13 +1,17 @@
 {
   "files": {
-    "main.css": "/time-quadrant-app/static/css/main.a4dcf5b6.css",
-    "main.js": "/time-quadrant-app/static/js/main.98030856.js",
+    "main.css": "/time-quadrant-app/static/css/main.4ab10685.css",
+    "main.js": "/time-quadrant-app/static/js/main.9ffd03ee.js",
+    "static/js/563.d0249970.chunk.js": "/time-quadrant-app/static/js/563.d0249970.chunk.js",
+    "static/js/103.1f31df80.chunk.js": "/time-quadrant-app/static/js/103.1f31df80.chunk.js",
     "index.html": "/time-quadrant-app/index.html",
-    "main.a4dcf5b6.css.map": "/time-quadrant-app/static/css/main.a4dcf5b6.css.map",
-    "main.98030856.js.map": "/time-quadrant-app/static/js/main.98030856.js.map"
+    "main.4ab10685.css.map": "/time-quadrant-app/static/css/main.4ab10685.css.map",
+    "main.9ffd03ee.js.map": "/time-quadrant-app/static/js/main.9ffd03ee.js.map",
+    "563.d0249970.chunk.js.map": "/time-quadrant-app/static/js/563.d0249970.chunk.js.map",
+    "103.1f31df80.chunk.js.map": "/time-quadrant-app/static/js/103.1f31df80.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a4dcf5b6.css",
-    "static/js/main.98030856.js"
+    "static/css/main.4ab10685.css",
+    "static/js/main.9ffd03ee.js"
   ]
 }
