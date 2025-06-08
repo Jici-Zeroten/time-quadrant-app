@@ -6,4 +6,3 @@ git push
 rem 提交gh-pages分支
 npm run deploy
 pause
-pause
