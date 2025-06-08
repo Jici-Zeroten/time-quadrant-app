@@ -156,8 +156,18 @@ function FlipCard({ quadrant }) {
 }
 
 export default function TaskReportPage({ tasks, onBack }) {
-    const summary = generateDetailedReport(tasks);
+    const [quote, setQuote] = useState("");
+    useEffect(() => {
+        fetch("/time-quadrant-app/sentences.txt")
+            .then((res) => res.text())
+            .then((text) => {
+                const lines = text.split("\n").map((line) => line.trim()).filter(Boolean);
+                const randomLine = lines[Math.floor(Math.random() * lines.length)];
+                setQuote(randomLine);
+            });
+    }, []);
 
+    const summary = generateDetailedReport(tasks);
     useEffect(() => {
         confetti({ particleCount: 100, spread: 150, origin: { y: 0.6 } });
     }, []);
@@ -210,6 +220,11 @@ export default function TaskReportPage({ tasks, onBack }) {
                 >
                     <h2 className="text-4xl font-extrabold mb-3 drop-shadow-lg">🎉 任务报告！</h2>
                     <p className="text-xl font-medium">{summary.date}</p>
+                    {quote && (
+                        <p className="mt-4 italic text-lg text-indigo-100 drop-shadow-sm">
+                            “{quote}”
+                        </p>
+                    )}
                     <p className="text-3xl font-bold mt-4 tracking-wide drop-shadow-md">
                         ✅ 当前完成率：<AnimatedNumber value={parseFloat(summary.rate)} />%
                     </p>
@@ -234,12 +249,12 @@ export default function TaskReportPage({ tasks, onBack }) {
                                     dataKey="value"
                                     cx="50%"
                                     cy="50%"
-                                    outerRadius={100}
+                                    outerRadius={85}
                                     label={({ name, percent }) =>
-                                        `${name}: ${(percent * 100).toFixed(0)}%`
+                                        percent > 0 ? `${name}: ${(percent * 100).toFixed(1)}%` : ""
                                     }
                                     labelLine={false}
-                                >
+                                    >
                                     {pieData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
